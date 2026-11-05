@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini AI Çeviri | Modern & Akıllı Çeviri</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Modern Google Font: Inter / Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Başlık & Logo Bölümü -->
+    <header class="app-header">
+      <div class="logo">
+        <div class="logo-icon">✦</div>
+        <h1>Gemini<span>Translate</span></h1>
+      </div>
+      <p class="subtitle">Google Gemini Yapay Zekası ile güçlendirilmiş akıllı makine çevirisi</p>
+    </header>
+
+    <!-- Ayarlar Paneli (Alan, Üslup ve Terimce Açma) -->
+    <section class="controls-card">
+      <div class="controls-grid">
+        <div class="control-group">
+          <label for="domainSelect">
+            <span class="icon">🏷️</span> Alan (Uzmanlık)
+          </label>
+          <select id="domainSelect">
+            <option value="general">Genel</option>
+            <option value="legal">Hukuk</option>
+            <option value="medical">Tıp</option>
+            <option value="technical">Teknik</option>
+            <option value="literary">Edebi</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="toneSelect">
+            <span class="icon">🎭</span> Üslup (Ton)
+          </label>
+          <select id="toneSelect">
+            <option value="formal">Resmi</option>
+            <option value="informal">Gündelik / Samimi</option>
+          </select>
+        </div>
+
+        <div class="control-group action-group">
+          <button type="button" id="toggleGlossaryBtn" class="btn-secondary" title="Zorunlu terim karşılıkları ekleyin">
+            <span>📖</span> Terimce (Glossary) <span id="glossaryBadge" class="badge">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Terimce (Glossary) Açılır Kutusu -->
+      <div id="glossaryPanel" class="glossary-panel hidden">
+        <div class="glossary-header">
+          <label for="glossaryInput">Terimce Kuralları (Her satıra: <code>kaynak = hedef</code>)</label>
+          <button type="button" id="closeGlossaryBtn" class="close-btn">&times;</button>
+        </div>
+        <textarea id="glossaryInput" placeholder="Örnek:
+Prompt engineering = İstek mühendisliği
+token = jeton
+pipeline = veri hattı"></textarea>
+        <small class="helper-text">Yapay zeka çeviri yaparken buradaki terim eşleştirmelerine kesinlikle bağlı kalır.</small>
+      </div>
+    </section>
+
+    <!-- Çeviri Çalışma Alanı (2 Sütunlu DeepL Stili) -->
+    <main class="translator-layout">
+      <!-- Sol Panel: Kaynak Metin -->
+      <div class="panel-box source-box">
+        <div class="panel-toolbar">
+          <div class="lang-selector-group">
+            <label for="sourceLang" class="sr-only">Kaynak Dil</label>
+            <select id="sourceLang">
+              <option value="İngilizce" selected>İngilizce</option>
+              <option value="Türkçe">Türkçe</option>
+              <option value="Almanca">Almanca</option>
+              <option value="İspanyolca">İspanyolca</option>
+              <option value="Fransızca">Fransızca</option>
+              <option value="İtalyanca">İtalyanca</option>
+              <option value="Rusça">Rusça</option>
+            </select>
+          </div>
+          <button id="swapLangBtn" class="icon-btn" title="Dilleri Değiştir">⇄</button>
+        </div>
+
+        <div class="textarea-container">
+          <textarea id="sourceText" placeholder="Çevirmek istediğiniz metni buraya yazın veya yapıştırın..." autofocus></textarea>
+        </div>
+
+        <div class="panel-footer">
+          <span id="charCount" class="char-count">0 karakter</span>
+          <div class="footer-actions">
+            <button id="clearBtn" class="btn-subtle" title="Metni Temizle">Temizle</button>
+            <button id="translateBtn" class="btn-primary">
+              <span class="btn-spinner hidden" id="spinner"></span>
+              <span id="btnText">Çevir ➔</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sağ Panel: Hedef Metin -->
+      <div class="panel-box target-box">
+        <div class="panel-toolbar">
+          <div class="lang-selector-group">
+            <label for="targetLang" class="sr-only">Hedef Dil</label>
+            <select id="targetLang">
+              <option value="Türkçe" selected>Türkçe</option>
+              <option value="İngilizce">İngilizce</option>
+              <option value="Almanca">Almanca</option>
+              <option value="İspanyolca">İspanyolca</option>
+              <option value="Fransızca">Fransızca</option>
+              <option value="İtalyanca">İtalyanca</option>
+              <option value="Rusça">Rusça</option>
+            </select>
+          </div>
+          <button id="copyBtn" class="btn-secondary copy-btn" title="Çeviriyi Kopyala">
+            <span class="copy-icon">📋</span> Kopyala
+          </button>
+        </div>
+
+        <div class="textarea-container">
+          <textarea id="targetText" placeholder="Çeviri burada görünecek..." readonly></textarea>
+        </div>
+
+        <div class="panel-footer target-footer">
+          <span id="statusInfo" class="status-info">Hazır</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Hata Bildirim Alanı (Görsel Uyarı Kartı) -->
+    <div id="errorBanner" class="error-banner hidden">
+      <div class="error-icon">⚠️</div>
+      <div class="error-content">
+        <h4 id="errorTitle">Bir Hata Oluştu</h4>
+        <p id="errorMessage">Hata detayı burada görünecek.</p>
+      </div>
+      <button id="dismissError" class="dismiss-btn">&times;</button>
+    </div>
+
+    <!-- Alt Bilgi (Footer) -->
+    <footer class="app-footer">
+      <p>Gemini 3.8 Flash ile desteklenmektedir • Mor & Siyah Özel Tasarım</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
